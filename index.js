@@ -45,21 +45,22 @@ io.on('connection', (socket) => {
     console.log(`User joined chat: ${chatId}`);
   });
 
-  socket.on('chat_message', (msg) => {
-    // Validate message format
-    if (!msg.chatId || !msg.sender || !msg.text || !msg.timestamp) {
-      return console.log('Invalid message format:', msg);
-    }
-    
-    io.to(msg.chatId).emit(`${msg.chatId}_message`, msg);
-    console.log(`Message to ${msg.chatId}: ${msg.text}`);
+  socket.on('join_group', (groupId) => {
+    socket.join(groupId);
+    console.log(`User joined group: ${groupId}`);
   });
+
+  socket.on('chat_message', (msg) => {
+    if (msg.chatId) {
+      io.to(msg.chatId).emit(`${msg.chatId}_message`, msg);
+      console.log(`Message to ${msg.chatId}: ${msg.text}`);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
 });
-
-
 server.listen(3000, '0.0.0.0', () => {
   console.log('Server is running on http://172.22.240.1:3000');
 });
