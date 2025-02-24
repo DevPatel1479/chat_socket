@@ -31,37 +31,25 @@ const socketIo = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"]
-    },
-    transports: ['websocket', 'polling'] // Add this
-  });
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 io.on('connection', (socket) => {
-  console.log('New connection:', socket.id);
+  console.log('New client connected:', socket.id);
 
-  socket.on('join_chat', (chatId) => {
-    socket.join(chatId);
-    console.log(`User joined chat: ${chatId}`);
-  });
-
-  socket.on('join_group', (groupId) => {
-    socket.join(groupId);
-    console.log(`User joined group: ${groupId}`);
-  });
-
-  socket.on('chat_message', (msg) => {
-    if (msg.chatId) {
-      io.to(msg.chatId).emit(`${msg.chatId}_message`, msg);
-      console.log(`Message to ${msg.chatId}: ${msg.text}`);
-    }
+  socket.on('chat message', (msg) => {
+    console.log('Received message:', msg);
+    io.emit('chat message', msg); // Broadcast to all clients
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+    console.log('Client disconnected:', socket.id);
   });
 });
+
 server.listen(3000, '0.0.0.0', () => {
   console.log('Server is running on http://172.22.240.1:3000');
 });
