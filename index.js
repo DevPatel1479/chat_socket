@@ -1,26 +1,30 @@
-// index.js
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 io.on('connection', (socket) => {
-  console.log('User connected: ' + socket.id);
-  
+  console.log('New client connected:', socket.id);
+
   socket.on('chat message', (msg) => {
-    console.log('Received message: ' + msg);
-    io.emit('chat message', msg);
+    console.log('Received message:', msg);
+    io.emit('chat message', msg); // Broadcast to all clients
   });
 
   socket.on('disconnect', () => {
-    console.log('User disconnected: ' + socket.id);
+    console.log('Client disconnected:', socket.id);
   });
 });
 
-// Bind to all interfaces
-server.listen(3000, '0.0.0.0', () => {
-  console.log('Server is running on http://172.22.240.1:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
