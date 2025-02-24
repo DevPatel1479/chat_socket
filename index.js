@@ -38,17 +38,23 @@ const io = socketIo(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+  console.log('New connection:', socket.id);
 
-  socket.on('chat message', (msg) => {
-    console.log('Received message:', msg);
-    io.emit('chat message', msg); // Broadcast to all clients
+  socket.on('join_chat', (chatId) => {
+    socket.join(chatId);
+    console.log(`User joined chat: ${chatId}`);
+  });
+
+  socket.on('chat_message', (msg) => {
+    io.to(msg.chatId).emit(`${msg.chatId}_message`, msg);
+    console.log(`Message to ${msg.chatId}: ${msg.text}`);
   });
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+    console.log('User disconnected:', socket.id);
   });
 });
+
 
 server.listen(3000, '0.0.0.0', () => {
   console.log('Server is running on http://172.22.240.1:3000');
