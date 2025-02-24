@@ -46,10 +46,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat_message', (msg) => {
+    // Validate message format
+    if (!msg.chatId || !msg.sender || !msg.text || !msg.timestamp) {
+      return console.log('Invalid message format:', msg);
+    }
+    
     io.to(msg.chatId).emit(`${msg.chatId}_message`, msg);
     console.log(`Message to ${msg.chatId}: ${msg.text}`);
   });
-
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
